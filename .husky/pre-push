@@ -1,0 +1,13 @@
+set -e
+
+echo "[pre-push] Security scan and dependency audit"
+pnpm run security
+
+echo "[pre-push] Lint (no autofix)"
+pnpm run lint:check
+
+echo "[pre-push] Build"
+pnpm run build
+
+echo "[pre-push] Tests"
+pnpm exec jest --runInBand

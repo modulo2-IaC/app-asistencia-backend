@@ -3,6 +3,15 @@
 /node_modules
 /build
 
+# OpenTofu / Terraform local state and generated data (never commit state)
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.json
+crash.log
+crash.*.log
+
 # Logs
 logs
 *.log
@@ -37,6 +46,8 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
+.env.*
+!.env.example
 .env.development.local
 .env.test.local
 .env.production.local

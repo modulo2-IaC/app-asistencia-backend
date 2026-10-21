@@ -1,0 +1,9 @@
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+strictDepBuilds: true
+blockExoticSubdeps: true
+
+allowBuilds:
+  '@parcel/watcher': false
+  '@scarf/scarf': false
+  unrs-resolver: false
