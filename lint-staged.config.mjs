@@ -1,3 +1,3 @@
 export default {
-  "*": "secretlint --no-glob",
+  "*": "pnpm exec secretlint --no-glob",
 };
