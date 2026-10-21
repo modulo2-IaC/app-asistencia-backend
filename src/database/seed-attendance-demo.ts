@@ -23,7 +23,9 @@ async function seedDiplomaModules(): Promise<void> {
   await queryRunner.connect();
 
   try {
-    console.info('🚀 Iniciando sincronización de Módulos de Diplomado y Asistencias...');
+    console.info(
+      '🚀 Iniciando sincronización de Módulos de Diplomado y Asistencias...',
+    );
 
     const userRepo = dataSource.getRepository(User);
     const moduleRepo = dataSource.getRepository(Module);
@@ -35,7 +37,9 @@ async function seedDiplomaModules(): Promise<void> {
     // =========================================================================
     // PASO 1: ELIMINACIÓN DE MATERIAS ANTIGUAS Y REGISTROS ASOCIADOS
     // =========================================================================
-    console.info('🧹 Paso 1: Buscando y eliminando materias universitarias obsoletas...');
+    console.info(
+      '🧹 Paso 1: Buscando y eliminando materias universitarias obsoletas...',
+    );
     const legacyPatterns = [
       '%Sistemas Operativos%',
       '%Base de Datos II%',
@@ -50,7 +54,10 @@ async function seedDiplomaModules(): Promise<void> {
 
     if (oldModules.length > 0) {
       const oldModuleIds = oldModules.map((m) => m.id);
-      console.info(`   Se encontraron ${oldModules.length} registros obsoletos:`, oldModules.map((m) => `${m.id}: ${m.name}`));
+      console.info(
+        `   Se encontraron ${oldModules.length} registros obsoletos:`,
+        oldModules.map((m) => `${m.id}: ${m.name}`),
+      );
 
       // 1. Limpiar auditoría asociada a los módulos antiguos
       await auditRepo
@@ -76,7 +83,10 @@ async function seedDiplomaModules(): Promise<void> {
 
         const deleteAttQuery = attendanceRepo.createQueryBuilder().delete();
         if (enrIds.length > 0 && schedIds.length > 0) {
-          deleteAttQuery.where('enrollmentId IN (:...enrIds) OR scheduleId IN (:...schedIds)', { enrIds, schedIds });
+          deleteAttQuery.where(
+            'enrollmentId IN (:...enrIds) OR scheduleId IN (:...schedIds)',
+            { enrIds, schedIds },
+          );
         } else if (enrIds.length > 0) {
           deleteAttQuery.where('enrollmentId IN (:...enrIds)', { enrIds });
         } else {
@@ -109,9 +119,13 @@ async function seedDiplomaModules(): Promise<void> {
         .where('id IN (:...oldModuleIds)', { oldModuleIds })
         .execute();
 
-      console.info('   ✅ Materias antiguas y sus dependencias eliminadas con éxito.');
+      console.info(
+        '   ✅ Materias antiguas y sus dependencias eliminadas con éxito.',
+      );
     } else {
-      console.info('   ℹ️ No se detectaron materias antiguas pendientes de eliminación.');
+      console.info(
+        '   ℹ️ No se detectaron materias antiguas pendientes de eliminación.',
+      );
     }
 
     // =========================================================================
@@ -126,16 +140,25 @@ async function seedDiplomaModules(): Promise<void> {
       console.warn('⚠️ No se encontraron estudiantes en la base de datos.');
       return;
     }
-    console.info(`👥 Estudiantes encontrados para asignación: ${students.length} (${students.map((s) => s.registrationNo).join(', ')})`);
+    console.info(
+      `👥 Estudiantes encontrados para asignación: ${students.length} (${students.map((s) => s.registrationNo).join(', ')})`,
+    );
 
     // =========================================================================
     // PASO 3: CREAR LOS 3 MÓDULOS HISTÓRICOS DEL DIPLOMADO (is_active: false)
     // =========================================================================
-    console.info('📚 Paso 2: Creando 3 módulos históricos del diplomado con sus fechas pasadas...');
+    console.info(
+      '📚 Paso 2: Creando 3 módulos históricos del diplomado con sus fechas pasadas...',
+    );
 
     interface HistoricalModuleDef {
       name: string;
-      schedules: Array<{ date: string; start: string; grace: string; end: string }>;
+      schedules: Array<{
+        date: string;
+        start: string;
+        grace: string;
+        end: string;
+      }>;
       // Patrón de asistencia para los estudiantes (P = present, L = late, A = absent)
       studentAttendancePattern: Array<'present' | 'late' | 'absent'>;
     }
@@ -144,44 +167,191 @@ async function seedDiplomaModules(): Promise<void> {
       {
         name: 'Módulo 1: Arquitectura de Software Cloud Native y Microservicios',
         schedules: [
-          { date: '2026-07-06', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-07-08', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-07-10', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-07-13', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-07-15', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-07-17', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-07-20', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-07-22', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
+          {
+            date: '2026-07-06',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-07-08',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-07-10',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-07-13',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-07-15',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-07-17',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-07-20',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-07-22',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
         ],
-        studentAttendancePattern: ['present', 'present', 'present', 'late', 'present', 'present', 'present', 'present'],
+        studentAttendancePattern: [
+          'present',
+          'present',
+          'present',
+          'late',
+          'present',
+          'present',
+          'present',
+          'present',
+        ],
       },
       {
         name: 'Módulo 2: Ingeniería Backend con NestJS y Bases de Datos Escalables',
         schedules: [
-          { date: '2026-08-03', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-08-05', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-08-07', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-08-10', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-08-12', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-08-14', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-08-17', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-08-19', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
+          {
+            date: '2026-08-03',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-08-05',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-08-07',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-08-10',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-08-12',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-08-14',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-08-17',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-08-19',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
         ],
-        studentAttendancePattern: ['present', 'present', 'absent', 'present', 'present', 'late', 'present', 'present'],
+        studentAttendancePattern: [
+          'present',
+          'present',
+          'absent',
+          'present',
+          'present',
+          'late',
+          'present',
+          'present',
+        ],
       },
       {
         name: 'Módulo 3: Desarrollo Frontend Moderno con React, TypeScript y Tailwind',
         schedules: [
-          { date: '2026-09-07', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-09-09', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-09-11', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-09-14', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-09-16', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-09-18', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-09-21', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-          { date: '2026-09-23', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
+          {
+            date: '2026-09-07',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-09-09',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-09-11',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-09-14',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-09-16',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-09-18',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-09-21',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
+          {
+            date: '2026-09-23',
+            start: '19:00:00',
+            grace: '19:15:00',
+            end: '22:00:00',
+          },
         ],
-        studentAttendancePattern: ['present', 'present', 'present', 'present', 'absent', 'present', 'present', 'late'],
+        studentAttendancePattern: [
+          'present',
+          'present',
+          'present',
+          'present',
+          'absent',
+          'present',
+          'present',
+          'late',
+        ],
       },
     ];
 
@@ -220,7 +390,11 @@ async function seedDiplomaModules(): Promise<void> {
       for (let i = 0; i < hDef.schedules.length; i++) {
         const item = hDef.schedules[i];
         let sched = await scheduleRepo.findOne({
-          where: { moduleId: mod.id, classDate: item.date, startTime: item.start },
+          where: {
+            moduleId: mod.id,
+            classDate: item.date,
+            startTime: item.start,
+          },
         });
         if (!sched) {
           sched = await scheduleRepo.save(
@@ -236,24 +410,36 @@ async function seedDiplomaModules(): Promise<void> {
 
         const expectedStatus = hDef.studentAttendancePattern[i] ?? 'present';
 
-        for (const { student, enrollment } of enrolledStudents) {
+        for (const { enrollment } of enrolledStudents) {
           const existingAtt = await attendanceRepo.findOne({
             where: { enrollmentId: enrollment.id, scheduleId: sched.id },
           });
 
           if (!existingAtt && expectedStatus !== 'absent') {
             // Generar marca realista
-            const minutesOffset = expectedStatus === 'present' ? Math.floor(Math.random() * 8) + 2 : 18;
-            const formattedMinutes = minutesOffset < 10 ? `0${minutesOffset}` : `${minutesOffset}`;
-            const markedDate = new Date(`${item.date}T19:${formattedMinutes}:12-04:00`);
+            const minutesOffset =
+              expectedStatus === 'present'
+                ? Math.floor(Math.random() * 8) + 2
+                : 18;
+            const formattedMinutes =
+              minutesOffset < 10 ? `0${minutesOffset}` : `${minutesOffset}`;
+            const markedDate = new Date(
+              `${item.date}T19:${formattedMinutes}:12-04:00`,
+            );
 
             await attendanceRepo.save(
               attendanceRepo.create({
                 enrollmentId: enrollment.id,
                 scheduleId: sched.id,
-                status: expectedStatus === 'present' ? AttendanceStatus.PRESENT : AttendanceStatus.LATE,
+                status:
+                  expectedStatus === 'present'
+                    ? AttendanceStatus.PRESENT
+                    : AttendanceStatus.LATE,
                 markedAt: markedDate,
-                notes: expectedStatus === 'present' ? 'Asistencia registrada en horario' : 'Registro con atraso justificado',
+                notes:
+                  expectedStatus === 'present'
+                    ? 'Asistencia registrada en horario'
+                    : 'Registro con atraso justificado',
               }),
             );
           }
@@ -267,7 +453,9 @@ async function seedDiplomaModules(): Promise<void> {
     // =========================================================================
     // PASO 4: CONFIGURAR EL MÓDULO ACTIVO ACTUAL (MÓDULO 4)
     // =========================================================================
-    console.info('⚡ Paso 3: Configurando Módulo 4 como módulo activo del diplomado...');
+    console.info(
+      '⚡ Paso 3: Configurando Módulo 4 como módulo activo del diplomado...',
+    );
     const now = new Date();
     const todayDate = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/La_Paz',
@@ -277,7 +465,8 @@ async function seedDiplomaModules(): Promise<void> {
     }).format(now);
 
     let activeMod = await moduleRepo.findOne({ where: { isActive: true } });
-    const activeModName = 'Módulo 4: DevOps, CI/CD y Contenedores con Kubernetes';
+    const activeModName =
+      'Módulo 4: DevOps, CI/CD y Contenedores con Kubernetes';
 
     if (!activeMod) {
       activeMod = await moduleRepo.save(
@@ -308,7 +497,7 @@ async function seedDiplomaModules(): Promise<void> {
 
     // Clase de HOY (en curso para probar RF-03 inmediatamente)
     // De 07:00 a 23:59 para que durante toda la jornada de hoy esté activa y habilitada para marcar
-    let todaySched = await scheduleRepo.findOne({
+    const todaySched = await scheduleRepo.findOne({
       where: { moduleId: activeMod.id, classDate: todayDate },
     });
     if (!todaySched) {
@@ -330,14 +519,33 @@ async function seedDiplomaModules(): Promise<void> {
 
     // Próximas clases para la próxima semana (19, 21 y 23 de octubre de 2026)
     const upcomingSchedules = [
-      { date: '2026-10-19', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-      { date: '2026-10-21', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
-      { date: '2026-10-23', start: '19:00:00', grace: '19:15:00', end: '22:00:00' },
+      {
+        date: '2026-10-19',
+        start: '19:00:00',
+        grace: '19:15:00',
+        end: '22:00:00',
+      },
+      {
+        date: '2026-10-21',
+        start: '19:00:00',
+        grace: '19:15:00',
+        end: '22:00:00',
+      },
+      {
+        date: '2026-10-23',
+        start: '19:00:00',
+        grace: '19:15:00',
+        end: '22:00:00',
+      },
     ];
 
     for (const up of upcomingSchedules) {
-      let upSched = await scheduleRepo.findOne({
-        where: { moduleId: activeMod.id, classDate: up.date, startTime: up.start },
+      const upSched = await scheduleRepo.findOne({
+        where: {
+          moduleId: activeMod.id,
+          classDate: up.date,
+          startTime: up.start,
+        },
       });
       if (!upSched) {
         await scheduleRepo.save(
@@ -352,9 +560,13 @@ async function seedDiplomaModules(): Promise<void> {
       }
     }
 
-    console.info(`   ✅ Módulo activo "${activeMod.name}" configurado con clase de hoy (${todayDate}) y próximas clases para la semana entrante.`);
+    console.info(
+      `   ✅ Módulo activo "${activeMod.name}" configurado con clase de hoy (${todayDate}) y próximas clases para la semana entrante.`,
+    );
 
-    console.info('🎉 ¡Seeding completado con éxito! Todos los módulos y asistencias están listos y normalizados.');
+    console.info(
+      '🎉 ¡Seeding completado con éxito! Todos los módulos y asistencias están listos y normalizados.',
+    );
   } finally {
     await queryRunner.release();
     await dataSource.destroy();

@@ -33,6 +33,18 @@ export interface ActivityItem {
   newValue: Record<string, unknown> | null;
 }
 
+function toNullableString(value: unknown): string | null {
+  if (!value) return null;
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'bigint'
+  ) {
+    return String(value);
+  }
+  return null;
+}
+
 @Injectable()
 export class ActivitiesService {
   constructor(
@@ -42,7 +54,7 @@ export class ActivitiesService {
 
   /** RF-10: Consulta de actividades del módulo activo con filtros */
   async listActivities(query: ListActivitiesDto) {
-    const { module, now, timeZone } = await this.context();
+    const { module, timeZone } = await this.context();
     const page = Math.max(1, query.page || 1);
     const limit = Math.min(100, Math.max(1, query.limit || 15));
     const offset = (page - 1) * limit;
@@ -53,9 +65,7 @@ export class ActivitiesService {
     if (query.studentId) {
       params.push(query.studentId);
       const idx = params.length;
-      conditions.push(
-        `(target.id = $${idx} OR a.user_id = $${idx})`,
-      );
+      conditions.push(`(target.id = $${idx} OR a.user_id = $${idx})`);
     }
 
     if (query.date) {
@@ -135,33 +145,38 @@ export class ActivitiesService {
 
     const [[{ total }], rows] = await Promise.all([
       this.dataSource.query<Array<{ total: number }>>(countQuery, params),
-      this.dataSource.query<Array<Record<string, unknown>>>(dataQuery, dataParams),
+      this.dataSource.query<Array<Record<string, unknown>>>(
+        dataQuery,
+        dataParams,
+      ),
     ]);
 
     const items: ActivityItem[] = rows.map((row) => {
       const action = String(row.action);
       const prev = (row.previousValue as Record<string, unknown>) || null;
       const next = (row.newValue as Record<string, unknown>) || null;
+      const userId = toNullableString(row.userId);
+      const studentId = toNullableString(row.studentId);
 
       return {
         id: String(row.id),
         createdAt: (row.createdAt as Date).toISOString(),
         action,
         actionLabel: this.getActionLabel(action),
-        affectedEntity: row.affectedEntity ? String(row.affectedEntity) : null,
-        affectedRecordId: row.affectedRecordId ? String(row.affectedRecordId) : null,
-        classDate: row.classDate ? String(row.classDate) : null,
-        user: row.userId
+        affectedEntity: toNullableString(row.affectedEntity),
+        affectedRecordId: toNullableString(row.affectedRecordId),
+        classDate: toNullableString(row.classDate),
+        user: userId
           ? {
-              id: String(row.userId),
+              id: userId,
               fullName: (row.userName as string) ?? null,
               registrationNo: String(row.userRegistrationNo),
               role: String(row.userRole),
             }
           : null,
-        student: row.studentId
+        student: studentId
           ? {
-              id: String(row.studentId),
+              id: studentId,
               fullName: (row.studentName as string) ?? null,
               registrationNo: String(row.studentRegistrationNo),
             }
@@ -267,7 +282,10 @@ export class ActivitiesService {
       const nextStatus = next?.status as string | undefined;
       const prevLabel = prevStatus === 'present' ? 'Presente' : 'Falta';
       const nextLabel = nextStatus === 'present' ? 'Presente' : 'Falta';
-      const notes = (next?.notes as string) || (prev?.notes as string) || 'Modificado por el administrador';
+      const notes =
+        (next?.notes as string) ||
+        (prev?.notes as string) ||
+        'Modificado por el administrador';
 
       return {
         previousStatus: prevStatus ?? null,
@@ -281,15 +299,21 @@ export class ActivitiesService {
     if (action === 'module.activated') {
       return {
         name: next?.name,
-        studentsCount: (next?.students as Record<string, unknown>)?.total ?? null,
-        schedulesCount: (next?.schedules as Record<string, unknown>)?.total ?? null,
+        studentsCount:
+          (next?.students as Record<string, unknown>)?.total ?? null,
+        schedulesCount:
+          (next?.schedules as Record<string, unknown>)?.total ?? null,
       };
     }
 
     return next ?? prev ?? {};
   }
 
-  private async context(): Promise<{ module: Module; now: LocalNow; timeZone: string }> {
+  private async context(): Promise<{
+    module: Module;
+    now: LocalNow;
+    timeZone: string;
+  }> {
     const module = await this.academicModules.getActiveModule();
     if (!module) throw new NotFoundException('No active module');
     const timeZone = process.env.APP_TIMEZONE || DEFAULT_TIMEZONE;

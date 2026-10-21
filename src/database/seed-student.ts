@@ -32,7 +32,9 @@ async function seedStudent(): Promise<void> {
       degreeProgram,
     });
     await users.save(user);
-    console.info(`Student created successfully with registration: ${registrationNo}.`);
+    console.info(
+      `Student created successfully with registration: ${registrationNo}.`,
+    );
   } finally {
     await dataSource.destroy();
   }

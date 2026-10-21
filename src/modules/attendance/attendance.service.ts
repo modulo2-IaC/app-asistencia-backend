@@ -8,7 +8,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
-import { Attendance, AttendanceStatus } from '../../database/entities/attendance.entity';
+import {
+  Attendance,
+  AttendanceStatus,
+} from '../../database/entities/attendance.entity';
 import { ClassSchedule } from '../../database/entities/class-schedule.entity';
 import { Enrollment } from '../../database/entities/enrollment.entity';
 import { Module } from '../../database/entities/module.entity';
@@ -91,15 +94,16 @@ export class AttendanceService {
       .getMany();
 
     const scheduleIds = schedules.map((s) => s.id);
-    const attendances = scheduleIds.length > 0
-      ? await this.attendanceRepo
-          .createQueryBuilder('att')
-          .where('att.scheduleId IN (:...scheduleIds)', { scheduleIds })
-          .andWhere('att.enrollmentId IN (:...enrollmentIds)', {
-            enrollmentIds: enrollments.map((e) => e.id),
-          })
-          .getMany()
-      : [];
+    const attendances =
+      scheduleIds.length > 0
+        ? await this.attendanceRepo
+            .createQueryBuilder('att')
+            .where('att.scheduleId IN (:...scheduleIds)', { scheduleIds })
+            .andWhere('att.enrollmentId IN (:...enrollmentIds)', {
+              enrollmentIds: enrollments.map((e) => e.id),
+            })
+            .getMany()
+        : [];
 
     const attendanceMap = new Map(
       attendances.map((a) => [`${a.enrollmentId}_${a.scheduleId}`, a]),
@@ -107,7 +111,8 @@ export class AttendanceService {
 
     const classes = schedules.map((schedule) => {
       const enrollment = moduleMap.get(schedule.moduleId)!;
-      const attendance = attendanceMap.get(`${enrollment.id}_${schedule.id}`) || null;
+      const attendance =
+        attendanceMap.get(`${enrollment.id}_${schedule.id}`) || null;
 
       const isClassTime =
         currentTime >= schedule.startTime && currentTime <= schedule.endTime;
@@ -163,8 +168,11 @@ export class AttendanceService {
   }
 
   async markAttendance(studentId: string, scheduleId: string) {
-    const { date: todayDate, time: currentTime, full: realTimestamp } =
-      this.getBoliviaDateTime();
+    const {
+      date: todayDate,
+      time: currentTime,
+      full: realTimestamp,
+    } = this.getBoliviaDateTime();
 
     const schedule = await this.scheduleRepo.findOne({
       where: { id: scheduleId },
@@ -296,15 +304,16 @@ export class AttendanceService {
       });
 
       const scheduleIds = schedules.map((s) => s.id);
-      const attendances = scheduleIds.length > 0
-        ? await this.attendanceRepo
-            .createQueryBuilder('att')
-            .where('att.scheduleId IN (:...scheduleIds)', { scheduleIds })
-            .andWhere('att.enrollmentId = :enrollmentId', {
-              enrollmentId: enrollment.id,
-            })
-            .getMany()
-        : [];
+      const attendances =
+        scheduleIds.length > 0
+          ? await this.attendanceRepo
+              .createQueryBuilder('att')
+              .where('att.scheduleId IN (:...scheduleIds)', { scheduleIds })
+              .andWhere('att.enrollmentId = :enrollmentId', {
+                enrollmentId: enrollment.id,
+              })
+              .getMany()
+          : [];
 
       const attMap = new Map(attendances.map((a) => [a.scheduleId, a]));
 
@@ -326,7 +335,8 @@ export class AttendanceService {
         } else {
           const isPassed =
             schedule.classDate < todayDate ||
-            (schedule.classDate === todayDate && currentTime > schedule.endTime);
+            (schedule.classDate === todayDate &&
+              currentTime > schedule.endTime);
 
           if (isPassed) {
             finalStatus = 'absent';
@@ -350,9 +360,10 @@ export class AttendanceService {
       });
 
       const evaluatedTotal = presentCount + lateCount + absentCount;
-      const percentage = evaluatedTotal > 0
-        ? Math.round(((presentCount + lateCount) / evaluatedTotal) * 100)
-        : 100;
+      const percentage =
+        evaluatedTotal > 0
+          ? Math.round(((presentCount + lateCount) / evaluatedTotal) * 100)
+          : 100;
 
       results.push({
         moduleId: enrollment.moduleId,

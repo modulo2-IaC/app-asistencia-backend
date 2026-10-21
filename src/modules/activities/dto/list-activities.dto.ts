@@ -35,7 +35,8 @@ export class ListActivitiesDto {
   date?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter by student user ID (actions by or affecting this student)',
+    description:
+      'Filter by student user ID (actions by or affecting this student)',
     example: '9',
   })
   @IsOptional()
@@ -43,7 +44,8 @@ export class ListActivitiesDto {
   studentId?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter by action type (e.g. attendance.marked, attendance.admin_corrected)',
+    description:
+      'Filter by action type (e.g. attendance.marked, attendance.admin_corrected)',
     example: 'attendance.marked',
   })
   @IsOptional()
@@ -51,7 +53,8 @@ export class ListActivitiesDto {
   action?: string;
 
   @ApiPropertyOptional({
-    description: 'Text search matching student or user name or registration number',
+    description:
+      'Text search matching student or user name or registration number',
     maxLength: 100,
   })
   @IsOptional()

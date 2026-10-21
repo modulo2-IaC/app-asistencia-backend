@@ -6,10 +6,7 @@ import { ActivitiesController } from './activities.controller';
 import { ActivitiesService } from './activities.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([AuditLog]),
-    AcademicModulesModule,
-  ],
+  imports: [TypeOrmModule.forFeature([AuditLog]), AcademicModulesModule],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],
   exports: [ActivitiesService],

@@ -13,7 +13,9 @@ export class AuditLogsIndexes1791952000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_audit_logs_module_created"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "IDX_audit_logs_module_created"`,
+    );
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_audit_logs_action"`);
   }
 }

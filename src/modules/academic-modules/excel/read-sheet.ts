@@ -1,4 +1,3 @@
-import { Readable } from 'node:stream';
 import * as ExcelJS from 'exceljs';
 import { isBlankCell, cellText, normalizeLabel } from './cell-value';
 import { ImportFile, ImportIssue } from './import-issue';
@@ -67,7 +66,7 @@ export async function readSheet<K extends string>(
       );
     }
 
-    worksheet.eachRow((row, rowNumber) => {
+    worksheet.eachRow((row) => {
       const values = row.values as unknown[];
       if (!columnIndexes) {
         const header = resolveHeader(values, columns);

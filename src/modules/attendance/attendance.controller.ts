@@ -7,7 +7,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
@@ -25,9 +30,14 @@ export class AttendanceController {
 
   @Get('today')
   @ApiOperation({
-    summary: 'Obtener las clases programadas del día actual para el estudiante autenticado',
+    summary:
+      'Obtener las clases programadas del día actual para el estudiante autenticado',
   })
-  @ApiResponse({ status: 200, description: 'Lista de clases de hoy con estado de elegibilidad para marcar' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Lista de clases de hoy con estado de elegibilidad para marcar',
+  })
   async getTodayClasses(@CurrentUser() user: AuthenticatedUser) {
     return this.attendanceService.getTodayClasses(user.id);
   }
@@ -35,9 +45,13 @@ export class AttendanceController {
   @Post('mark')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Marcar asistencia en la fecha y hora de la clase programada (RF-03)',
+    summary:
+      'Marcar asistencia en la fecha y hora de la clase programada (RF-03)',
   })
-  @ApiResponse({ status: 200, description: 'Asistencia registrada exitosamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Asistencia registrada exitosamente',
+  })
   @ApiResponse({ status: 400, description: 'Fuera de horario o fecha' })
   @ApiResponse({ status: 409, description: 'Asistencia ya registrada' })
   async markAttendance(
@@ -49,9 +63,13 @@ export class AttendanceController {
 
   @Get('history')
   @ApiOperation({
-    summary: 'Historial de clases y asistencias agrupadas por módulo para el estudiante autenticado',
+    summary:
+      'Historial de clases y asistencias agrupadas por módulo para el estudiante autenticado',
   })
-  @ApiResponse({ status: 200, description: 'Historial y estadísticas de asistencia por módulo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Historial y estadísticas de asistencia por módulo',
+  })
   async getHistory(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: AttendanceHistoryQueryDto,
@@ -63,9 +81,13 @@ export class AttendanceController {
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.ADMIN)
   @ApiOperation({
-    summary: 'Permite al administrador corregir o registrar una asistencia fuera de fecha (RF-04 / RN-06)',
+    summary:
+      'Permite al administrador corregir o registrar una asistencia fuera de fecha (RF-04 / RN-06)',
   })
-  @ApiResponse({ status: 200, description: 'Asistencia corregida exitosamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Asistencia corregida exitosamente',
+  })
   async adminCorrect(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: AdminCorrectAttendanceDto,
