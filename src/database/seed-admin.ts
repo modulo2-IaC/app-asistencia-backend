@@ -35,7 +35,12 @@ async function seedAdmin(): Promise<void> {
         );
       }
 
-      console.info('Admin already exists; no changes made.');
+      existingUser.passwordHash = await hash(password, 12);
+      if (fullName) existingUser.fullName = fullName;
+      await users.save(existingUser);
+      console.info(
+        `Admin ${registrationNo} updated/synchronized successfully.`,
+      );
       return;
     }
 
