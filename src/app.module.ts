@@ -10,6 +10,8 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AttendanceAdminModule } from './modules/attendance-admin/attendance-admin.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 
+import path from 'path';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -18,8 +20,16 @@ import { ActivitiesModule } from './modules/activities/activities.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres' as const,
         url: configService.getOrThrow<string>('DATABASE_URL'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        autoLoadEntities: true,
+        migrations: [
+          path
+            .relative(
+              process.cwd(),
+              path.join(__dirname, 'database/migrations/*{.ts,.js}'),
+            )
+            .split(path.sep)
+            .join('/'),
+        ],
         migrationsTableName: 'migrations',
         synchronize: false,
         migrationsRun: configService.get<string>('RUN_MIGRATIONS') === 'true',

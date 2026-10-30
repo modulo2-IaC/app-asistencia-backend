@@ -1,5 +1,12 @@
 import 'dotenv/config';
+import path from 'path';
 import { DataSource } from 'typeorm';
+import { Attendance } from './entities/attendance.entity';
+import { AuditLog } from './entities/audit-log.entity';
+import { ClassSchedule } from './entities/class-schedule.entity';
+import { Enrollment } from './entities/enrollment.entity';
+import { Module } from './entities/module.entity';
+import { User } from '../modules/users/entities/user.entity';
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -9,12 +16,18 @@ if (!databaseUrl) {
   );
 }
 
+const migrationsPattern = path
+  .relative(process.cwd(), path.join(__dirname, 'migrations', '*{.ts,.js}'))
+  .split(path.sep)
+  .join('/');
+
 export default new DataSource({
   type: 'postgres',
   url: databaseUrl,
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/migrations/*{.ts,.js}'],
+  entities: [Attendance, AuditLog, ClassSchedule, Enrollment, Module, User],
+  migrations: [migrationsPattern],
   synchronize: false,
   migrationsRun: false,
   migrationsTableName: 'migrations',
 });
+
